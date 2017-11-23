@@ -3,7 +3,8 @@
 //
 
 #pragma once
-
+#include "afxcmn.h"
+#include "data.h"
 
 // CMFCAppDlg ¶Ô»°¿ò
 class CMFCAppDlg : public CDialogEx
@@ -31,4 +32,9 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CListCtrl m_list_stu;
+    Student student[10];
+	afx_msg void OnNMRclkListStu(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnMenuDel();
 };
