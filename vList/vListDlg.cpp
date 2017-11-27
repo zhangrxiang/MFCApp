@@ -176,8 +176,7 @@ void CVListDlg::OnOK()
 {
 		CString strRows = "";
 		m_EDT_Rows.GetWindowText(strRows);
-		
-		AddRows(atoi(strRows));
+		AddRows(i++ ,atoi(strRows));
 }
 
 
@@ -191,7 +190,7 @@ void CVListDlg::InitLst()
 	m_LST_Value.InsertColumn(nColIdx++, "Val_3", LVCFMT_CENTER, 200);		
 }
 
-void CVListDlg::AddRows(const DWORD &dwRows)
+void CVListDlg::AddRows(int i,const DWORD &dwRows)
 {
 		if (dwRows <= 0)
 			return;
@@ -199,8 +198,9 @@ void CVListDlg::AddRows(const DWORD &dwRows)
 		m_STC_LBL.SetWindowText("正在组织数据...");
 		m_aryLstData.clear();
 		DWORD dwAryTotalCount = 0;		
-		DWORD dwAryIdx = 0;
-		for (; dwAryIdx < dwRows; dwAryIdx++)
+		DWORD now = dwAryIdx + dwRows;
+		
+		for (; dwAryIdx <now; dwAryIdx++)
 		{
 				MSG msg;
 				if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
@@ -211,16 +211,18 @@ void CVListDlg::AddRows(const DWORD &dwRows)
 
 				LST_DATA lstData;
 				lstData.dwcolIdx = dwAryIdx;
-				sprintf_s(lstData.chcolValue1, "%d", dwAryIdx);
-				sprintf_s(lstData.chcolValue2, "%d", dwAryIdx);
-				sprintf_s(lstData.chcolValue3, "%d", dwAryIdx);
+				CString strtemp;
+				strtemp.Format("%d", i);
+				sprintf_s(lstData.chcolValue1, "%s_%d", strtemp, dwAryIdx);
+				sprintf_s(lstData.chcolValue2, "%d",dwAryIdx);
+				sprintf_s(lstData.chcolValue3, "%d",dwAryIdx);
 
-				m_aryLstData.push_back(lstData);				
+				m_aryLstData.push_back(lstData);	
 		}
-
 		m_STC_LBL.SetWindowText("组织数据结束");
 		m_LST_Value.SetItemCount(m_aryLstData.size());
 		m_LST_Value.RedrawItems(dwAryIdx, dwAryIdx);
+		dwAryIdx += dwRows;
 }
 
 

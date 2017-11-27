@@ -37,7 +37,7 @@ public:
 
 	void InitLst();
 
-	void AddRows(const DWORD &dwRows = 0);
+	void AddRows(int i,const DWORD &dwRows = 0);
 
 private:
 	ARY_LST m_aryLstData;
@@ -59,7 +59,8 @@ private:
 // Implementation
 protected:
 	HICON m_hIcon;
-
+	int i = 0;
+	DWORD  dwAryIdx = 0;
 	// Generated message map functions
 	//{{AFX_MSG(CVListDlg)
 	virtual BOOL OnInitDialog();
