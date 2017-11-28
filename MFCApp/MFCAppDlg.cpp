@@ -66,6 +66,7 @@ BEGIN_MESSAGE_MAP(CMFCAppDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(NM_RCLICK, IDC_LIST_STU, &CMFCAppDlg::OnNMRclkListStu)
+	//ON_NOTIFY(ON_WM_VSCROLL, IDC_LIST_STU, &CMFCAppDlg::OnNMRclkListStu)
 	ON_COMMAND(ID_MENU_DEL, &CMFCAppDlg::OnMenuDel)
 END_MESSAGE_MAP()
 
@@ -113,7 +114,7 @@ BOOL CMFCAppDlg::OnInitDialog()
 	style |= LVS_EX_GRIDLINES;       //画线
 	m_list_stu.SetExtendedStyle(style);
 
-	int length = 10, i = 0;
+	int length = 200, i = 0;
 	for (i = 0; i < length; i++)
 	{
 		student[i].id = i;
@@ -132,6 +133,13 @@ BOOL CMFCAppDlg::OnInitDialog()
 		m_list_stu.SetItemText(i, 2, (LPCSTR)str_age);
 		m_list_stu.SetItemText(i, 3, (LPCSTR)(student[i].address));
 	}
+	//设置扩展风格  
+
+	//m_list_stu.SetExtendedStyle(LVS_SHOWSELALWAYS | LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	//设置背景颜色  
+	m_list_stu.SetBkColor(RGB(200, 200, 255));
+	//设置第一行为选中状态  
+	m_list_stu.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -233,5 +241,11 @@ void CMFCAppDlg::OnNMRclkListStu(NMHDR *pNMHDR, LRESULT *pResult)
 void CMFCAppDlg::OnMenuDel()
 {
 	// TODO: 在此添加命令处理程序代码
-
+	while (m_list_stu.GetNextItem(-1, LVNI_ALL | LVNI_SELECTED) != -1)
+	{
+		int nItem = m_list_stu.GetNextItem(-1, LVNI_ALL | LVNI_SELECTED);
+		m_list_stu.DeleteItem(nItem);
+	}
 }
+
+

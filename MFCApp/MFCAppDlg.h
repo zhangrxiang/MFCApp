@@ -34,7 +34,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListCtrl m_list_stu;
-    Student student[10];
+    Student student[200];
 	afx_msg void OnNMRclkListStu(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnMenuDel();
+//	afx_msg void OnLvnEndScrollListStu(NMHDR *pNMHDR, LRESULT *pResult);
 };
