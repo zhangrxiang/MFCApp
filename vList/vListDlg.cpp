@@ -76,6 +76,7 @@ void CVListDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STC_LBL, m_STC_LBL);
 	DDX_Control(pDX, IDC_Edt_Rows, m_EDT_Rows);
 	DDX_Control(pDX, IDC_LST_VALUE, m_LST_Value);
+	DDX_Control(pDX, IDC_LIST_LOG, log_list);
 	//}}AFX_DATA_MAP
 }
 
@@ -86,6 +87,7 @@ BEGIN_MESSAGE_MAP(CVListDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LST_VALUE, OnGetdispinfoLSTAnalyse)
+	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_LOG, OnGetdispinfoLSTAnalyse)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -176,7 +178,8 @@ void CVListDlg::OnOK()
 {
 		CString strRows = "";
 		m_EDT_Rows.GetWindowText(strRows);
-		AddRows(i++ ,atoi(strRows));
+		//AddRows(i++ ,atoi(strRows));
+		AddRowsLOG(i++, atoi(strRows));
 }
 
 
@@ -187,9 +190,55 @@ void CVListDlg::InitLst()
 	m_LST_Value.InsertColumn(nColIdx++, "IDX", LVCFMT_CENTER, 100);
 	m_LST_Value.InsertColumn(nColIdx++, "Val_1", LVCFMT_CENTER, 200);
 	m_LST_Value.InsertColumn(nColIdx++, "Val_2", LVCFMT_CENTER, 200);
-	m_LST_Value.InsertColumn(nColIdx++, "Val_3", LVCFMT_CENTER, 200);		
+	m_LST_Value.InsertColumn(nColIdx++, "Val_3", LVCFMT_CENTER, 200);	
+
+	nColIdx = 0;
+	log_list.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	log_list.InsertColumn(nColIdx++, "id", LVCFMT_CENTER, 50);
+	log_list.InsertColumn(nColIdx++, "内容", LVCFMT_CENTER, 250);
+	log_list.InsertColumn(nColIdx++, "级别", LVCFMT_CENTER, 50);
+	log_list.InsertColumn(nColIdx++, "结果", LVCFMT_CENTER, 50);
+	log_list.InsertColumn(nColIdx++, "时间", LVCFMT_CENTER, 250);
 }
 
+void CVListDlg::AddRowsLOG(int i, const DWORD &dwRows)
+{
+	if (dwRows <= 0)
+		return;
+	m_aryLstLog.clear();
+	DWORD dwAryTotalCount = 0;
+	DWORD now = dwAryIdx + dwRows;
+	for (; dwAryIdx <now; dwAryIdx++)
+	{
+		MSG msg;
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		LST_LOG lstLog;
+		lstLog.id = dwAryIdx;
+		lstLog.level = 2;// rand() % 3;
+		lstLog.result = 1;
+		lstLog.time = 1111;
+		//time((time_t *)lstLog.time);
+		//CString strtemp;
+		//char str[20];
+		//strtemp.Format("zing_%d", i);
+		//sprintf_s(lstLog.content, str,1);
+		lstrcpy(lstLog.content, "zing");
+		/*sprintf_s(lstLog.content, "%s_%d", strtemp, dwAryIdx);
+		sprintf_s(lstLog.level, "%d", dwAryIdx);
+		sprintf_s(lstLog.result, "%d", dwAryIdx);
+		sprintf_s(lstLog.time, "%d", dwAryIdx);
+		*/
+		m_aryLstLog.push_back(lstLog);
+	}
+	log_list.SetItemCount(m_aryLstLog.size());
+	log_list.RedrawItems(dwAryIdx, dwAryIdx);
+	dwAryIdx += dwRows;
+}
 void CVListDlg::AddRows(int i,const DWORD &dwRows)
 {
 		if (dwRows <= 0)
@@ -236,12 +285,49 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 			return;
 		
 		CString strTmp = "";
-		int iItemIndx= pItem->iItem;	
+		int iItemIndx= pItem->iItem;
+		AddRowsLOG(i + 30, 30);
 		if (pItem->mask & LVIF_TEXT) //字符串缓冲区有效
 		{
 			
 				switch(pItem->iSubItem)
 				{
+				case 0:
+				{
+					strTmp.Format("%d", m_aryLstLog[iItemIndx].id);
+					lstrcpy(pItem->pszText, strTmp);
+					strTmp = "";
+				}
+				break;
+				case 1:
+				{
+					strTmp.Format("%s", m_aryLstLog[iItemIndx].content);
+					lstrcpy(pItem->pszText, strTmp);
+					strTmp = "";
+				}
+				break;
+				case 2:
+				{
+					strTmp.Format("%d", m_aryLstLog[iItemIndx].level);
+					lstrcpy(pItem->pszText, strTmp);
+					strTmp = "";
+				}
+				break;
+				case 3:
+				{
+					strTmp.Format("%d", m_aryLstLog[iItemIndx].result);
+					lstrcpy(pItem->pszText, strTmp);
+					strTmp = "";
+				}
+				break; 
+				case 4:
+				{
+					strTmp.Format("%d", m_aryLstLog[iItemIndx].time);
+					lstrcpy(pItem->pszText, strTmp);
+					strTmp = "";
+				}
+				break;
+					/*
 				case 0:
 					{
 							strTmp.Format("%d", m_aryLstData[iItemIndx].dwcolIdx);
@@ -270,6 +356,7 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 							strTmp = "";
 					}					
 					break;
+					*/
 				}
 		}
 		
