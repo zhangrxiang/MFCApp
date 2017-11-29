@@ -88,6 +88,7 @@ BEGIN_MESSAGE_MAP(CVListDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LST_VALUE, OnGetdispinfoLSTAnalyse)
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_LOG, OnGetdispinfoLSTAnalyse)
+	ON_NOTIFY(LVN_ODFINDITEM, IDC_LIST_LOG, OnOdfinditemList)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -180,6 +181,7 @@ void CVListDlg::OnOK()
 		CString strRows = "";
 		m_EDT_Rows.GetWindowText(strRows);
 		//AddRows(i++ ,atoi(strRows));
+		memset(arr, 0x00, sizeof arr);
 		AddRowsLOG(atoi(strRows));
 }
 
@@ -207,8 +209,6 @@ void CVListDlg::AddRowsLOG(const DWORD &dwRows)
 	if (dwRows <= 0)
 		return;
 	m_aryLstLog.clear();
-	//m_aryLstLog.empty();
-	//m_aryLstLog.;
 	DWORD dwAryTotalCount = 0, dwAryIdx = now;
 	dwAryTotalCount = dwRows + dwAryIdx;
 	for (; now < dwAryTotalCount; now++)
@@ -234,7 +234,7 @@ void CVListDlg::AddRowsLOG(const DWORD &dwRows)
 		m_aryLstLog.push_back(lstLog);
 	}
 	//log_list.SetItemCount(m_aryLstLog.size());
-	log_list.SetItemCount(5);
+	log_list.SetItemCount(now);
 	//log_list.RedrawItems(dwAryIdx, now);
 }
 void CVListDlg::AddRows(int i,const DWORD &dwRows)
@@ -269,7 +269,36 @@ void CVListDlg::AddRows(int i,const DWORD &dwRows)
 }
 
 
-void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult) 
+
+void CVListDlg::OnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
+{
+		// pNMHDR has information about the item we should find
+		// In pResult we should save which item that should be selected
+		NMLVFINDITEM* pFindInfo = (NMLVFINDITEM*)pNMHDR;
+		*pResult = -1; // *pResult = -1 表明没有找到
+		if ((pFindInfo->lvfi.flags & LVFI_STRING) == 0)
+			return;
+		int nlen = _tcslen(pFindInfo->lvfi.psz);
+		int startPos = pFindInfo->iStart;
+		//Is startPos outside the list (happens if last item is selected)
+		if (startPos >= log_list.GetItemCount())
+			startPos = 0;
+		int currentPos = startPos;
+		do{
+			if (memcmp((log_list + startPos), pFindInfo->lvfi.psz, nlen) == 0)
+			{
+				*pResult = currentPos;
+				break;
+			}
+			currentPos++;
+
+			if (currentPos >= log_list.GetItemCount())
+				currentPos = 0;
+		} while (currentPos != startPos);
+}
+
+
+void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 {
 		LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;	
 		LV_ITEM* pItem= &(pDispInfo)->item;
@@ -357,9 +386,10 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 				}
 			
 		}
-		if (now - 1 == iItemIndx && now % atoi(strRows) == 0)
+		if (now - 1 == iItemIndx && now % atoi(strRows) == 0 && now < 1000)
 		{
 			AddRowsLOG(atoi(strRows));
+			log_list.EnsureVisible(now- atoi(strRows),FALSE);
 		}
 		*pResult = 0;
 }
