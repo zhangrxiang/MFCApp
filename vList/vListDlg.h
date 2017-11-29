@@ -41,8 +41,7 @@ typedef struct _LST_LOG_
 	}
 }LST_LOG, *LPLST_LOG;
 typedef std::vector<LST_DATA>	ARY_LST;
-typedef std::vector<LST_LOG>	ARY_LST_LOG;
-
+typedef std::vector<LST_LOG>	    ARY_LST_LOG;
 
 class CVListDlg : public CDialog
 {
@@ -53,13 +52,13 @@ public:
 	void InitLst();
 
 	void AddRows(int i,const DWORD &dwRows = 0);
-	void CVListDlg::AddRowsLOG(int i, const DWORD &dwRows);
+	void CVListDlg::AddRowsLOG(const DWORD &dwRows);
 
 
 private:
 	ARY_LST m_aryLstData;
 	ARY_LST_LOG m_aryLstLog;
-
+	LST_LOG arr[1000];
 // Dialog Data
 	//{{AFX_DATA(CVListDlg)
 	enum { 
@@ -79,8 +78,7 @@ private:
 // Implementation
 protected:
 	HICON m_hIcon;
-	int i = 0;
-	DWORD  dwAryIdx = 0;
+	DWORD  now = 0;
 	// Generated message map functions
 	//{{AFX_MSG(CVListDlg)
 	virtual BOOL OnInitDialog();

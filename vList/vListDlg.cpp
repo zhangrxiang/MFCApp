@@ -119,7 +119,8 @@ BOOL CVListDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-	
+	m_EDT_Rows.SetWindowText("5");
+	memset(arr, 0x00,sizeof(arr));
 	InitLst();
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -179,7 +180,7 @@ void CVListDlg::OnOK()
 		CString strRows = "";
 		m_EDT_Rows.GetWindowText(strRows);
 		//AddRows(i++ ,atoi(strRows));
-		AddRowsLOG(i++, atoi(strRows));
+		AddRowsLOG(atoi(strRows));
 }
 
 
@@ -201,14 +202,16 @@ void CVListDlg::InitLst()
 	log_list.InsertColumn(nColIdx++, "时间", LVCFMT_CENTER, 250);
 }
 
-void CVListDlg::AddRowsLOG(int i, const DWORD &dwRows)
+void CVListDlg::AddRowsLOG(const DWORD &dwRows)
 {
 	if (dwRows <= 0)
 		return;
 	m_aryLstLog.clear();
-	DWORD dwAryTotalCount = 0;
-	DWORD now = dwAryIdx + dwRows;
-	for (; dwAryIdx <now; dwAryIdx++)
+	//m_aryLstLog.empty();
+	//m_aryLstLog.;
+	DWORD dwAryTotalCount = 0, dwAryIdx = now;
+	dwAryTotalCount = dwRows + dwAryIdx;
+	for (; now < dwAryTotalCount; now++)
 	{
 		MSG msg;
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -216,62 +219,53 @@ void CVListDlg::AddRowsLOG(int i, const DWORD &dwRows)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
 		LST_LOG lstLog;
-		lstLog.id = dwAryIdx;
-		lstLog.level = 2;// rand() % 3;
-		lstLog.result = 1;
+		lstLog.id = now;
+		lstLog.level = 2;
+		lstLog.result = now;
 		lstLog.time = 1111;
-		//time((time_t *)lstLog.time);
-		//CString strtemp;
-		//char str[20];
-		//strtemp.Format("zing_%d", i);
-		//sprintf_s(lstLog.content, str,1);
 		lstrcpy(lstLog.content, "zing");
-		/*sprintf_s(lstLog.content, "%s_%d", strtemp, dwAryIdx);
-		sprintf_s(lstLog.level, "%d", dwAryIdx);
-		sprintf_s(lstLog.result, "%d", dwAryIdx);
-		sprintf_s(lstLog.time, "%d", dwAryIdx);
-		*/
+
+		arr[now].id = now;
+		arr[now].level = 2;
+		arr[now].result = now;
+		arr[now].time = 1111;
+		lstrcpy(arr[now].content, "zing");
 		m_aryLstLog.push_back(lstLog);
 	}
-	log_list.SetItemCount(m_aryLstLog.size());
-	log_list.RedrawItems(dwAryIdx, dwAryIdx);
-	dwAryIdx += dwRows;
+	//log_list.SetItemCount(m_aryLstLog.size());
+	log_list.SetItemCount(5);
+	//log_list.RedrawItems(dwAryIdx, now);
 }
 void CVListDlg::AddRows(int i,const DWORD &dwRows)
-{
-		if (dwRows <= 0)
-			return;
-
-		m_STC_LBL.SetWindowText("正在组织数据...");
-		m_aryLstData.clear();
-		DWORD dwAryTotalCount = 0;		
-		DWORD now = dwAryIdx + dwRows;
-		
-		for (; dwAryIdx <now; dwAryIdx++)
-		{
-				MSG msg;
-				if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
-				{
-						TranslateMessage(&msg);
-						DispatchMessage(&msg); 
-				}
-
-				LST_DATA lstData;
-				lstData.dwcolIdx = dwAryIdx;
-				CString strtemp;
-				strtemp.Format("%d", i);
-				sprintf_s(lstData.chcolValue1, "%s_%d", strtemp, dwAryIdx);
-				sprintf_s(lstData.chcolValue2, "%d",dwAryIdx);
-				sprintf_s(lstData.chcolValue3, "%d",dwAryIdx);
-
-				m_aryLstData.push_back(lstData);	
-		}
-		m_STC_LBL.SetWindowText("组织数据结束");
-		m_LST_Value.SetItemCount(m_aryLstData.size());
-		m_LST_Value.RedrawItems(dwAryIdx, dwAryIdx);
-		dwAryIdx += dwRows;
+{	   if (dwRows <= 0)
+ 			return;
+ 
+ 		m_STC_LBL.SetWindowText("正在组织数据...");
+ 		m_aryLstData.clear();
+ 		DWORD dwAryTotalCount = 0;		
+ 		DWORD dwAryIdx = 0;
+ 		for (; dwAryIdx < dwRows; dwAryIdx++)
+ 		{
+ 				MSG msg;
+ 				if(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+ 				{
+ 						TranslateMessage(&msg);
+ 						DispatchMessage(&msg); 
+ 				}
+ 
+ 				LST_DATA lstData;
+ 				lstData.dwcolIdx = dwAryIdx;
+ 				sprintf_s(lstData.chcolValue1, "%d", dwAryIdx);
+ 				sprintf_s(lstData.chcolValue2, "%d", dwAryIdx);
+ 				sprintf_s(lstData.chcolValue3, "%d", dwAryIdx);
+ 
+ 				m_aryLstData.push_back(lstData);				
+ 		}
+ 
+ 		m_STC_LBL.SetWindowText("组织数据结束");
+ 		m_LST_Value.SetItemCount(m_aryLstData.size());
+ 		m_LST_Value.RedrawItems(dwAryIdx, dwAryIdx);
 }
 
 
@@ -286,43 +280,46 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 		
 		CString strTmp = "";
 		int iItemIndx= pItem->iItem;
-		AddRowsLOG(i + 30, 30);
+		CString strRows = "";
+		m_EDT_Rows.GetWindowText(strRows);
+		//if (iItemIndx + 1 >= atoi(strRows) && iItemIndx % atoi(strRows) == atoi(strRows) - 1)
+		//log_list.EnsureVisible(iItemIndx,FALSE);
 		if (pItem->mask & LVIF_TEXT) //字符串缓冲区有效
 		{
-			
 				switch(pItem->iSubItem)
 				{
 				case 0:
 				{
-					strTmp.Format("%d", m_aryLstLog[iItemIndx].id);
+					//strTmp.Format("%d", m_aryLstLog[iItemIndx].id);
+					strTmp.Format("%d", arr[iItemIndx].id);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
 				}
 				break;
 				case 1:
 				{
-					strTmp.Format("%s", m_aryLstLog[iItemIndx].content);
+					strTmp.Format("%s", arr[iItemIndx].content);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
 				}
 				break;
 				case 2:
 				{
-					strTmp.Format("%d", m_aryLstLog[iItemIndx].level);
+					strTmp.Format("%d", arr[iItemIndx].level);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
 				}
 				break;
 				case 3:
 				{
-					strTmp.Format("%d", m_aryLstLog[iItemIndx].result);
+					strTmp.Format("%d", arr[iItemIndx].result);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
 				}
 				break; 
 				case 4:
 				{
-					strTmp.Format("%d", m_aryLstLog[iItemIndx].time);
+					strTmp.Format("%d", arr[iItemIndx].time);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
 				}
@@ -358,7 +355,11 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 					break;
 					*/
 				}
+			
 		}
-		
+		if (now - 1 == iItemIndx && now % atoi(strRows) == 0)
+		{
+			AddRowsLOG(atoi(strRows));
+		}
 		*pResult = 0;
 }
