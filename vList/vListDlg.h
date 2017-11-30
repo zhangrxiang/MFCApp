@@ -88,7 +88,7 @@ protected:
 	virtual void OnOK();
 	//}}AFX_MSG
 	afx_msg void OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);
+	//afx_msg void OnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);
 
 	DECLARE_MESSAGE_MAP()
 public:

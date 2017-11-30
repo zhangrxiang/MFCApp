@@ -88,7 +88,7 @@ BEGIN_MESSAGE_MAP(CVListDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LST_VALUE, OnGetdispinfoLSTAnalyse)
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_LOG, OnGetdispinfoLSTAnalyse)
-	ON_NOTIFY(LVN_ODFINDITEM, IDC_LIST_LOG, OnOdfinditemList)
+	//ON_NOTIFY(LVN_ODFINDITEM, IDC_LIST_LOG, OnOdfinditemList)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -206,6 +206,12 @@ void CVListDlg::InitLst()
 
 void CVListDlg::AddRowsLOG(const DWORD &dwRows)
 {
+	CFile file;
+	file.Open("1.txt", CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate, NULL);
+	file.SeekToEnd();
+	file.Write("HelloWorld\n", strlen("HelloWorld\n"));
+	file.Close();
+	//Write( const void* lpBuf, UINT nCount )  lpBuf是写入数据的Buf指针，nCount是Buf里需要写入文件的字节数
 	if (dwRows <= 0)
 		return;
 	m_aryLstLog.clear();
@@ -270,32 +276,32 @@ void CVListDlg::AddRows(int i,const DWORD &dwRows)
 
 
 
-void CVListDlg::OnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
-{
-		// pNMHDR has information about the item we should find
-		// In pResult we should save which item that should be selected
-		NMLVFINDITEM* pFindInfo = (NMLVFINDITEM*)pNMHDR;
-		*pResult = -1; // *pResult = -1 表明没有找到
-		if ((pFindInfo->lvfi.flags & LVFI_STRING) == 0)
-			return;
-		int nlen = _tcslen(pFindInfo->lvfi.psz);
-		int startPos = pFindInfo->iStart;
-		//Is startPos outside the list (happens if last item is selected)
-		if (startPos >= log_list.GetItemCount())
-			startPos = 0;
-		int currentPos = startPos;
-		do{
-			if (memcmp((log_list + startPos), pFindInfo->lvfi.psz, nlen) == 0)
-			{
-				*pResult = currentPos;
-				break;
-			}
-			currentPos++;
-
-			if (currentPos >= log_list.GetItemCount())
-				currentPos = 0;
-		} while (currentPos != startPos);
-}
+//void CVListDlg::OnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
+//{
+//		// pNMHDR has information about the item we should find
+//		// In pResult we should save which item that should be selected
+//		NMLVFINDITEM* pFindInfo = (NMLVFINDITEM*)pNMHDR;
+//		*pResult = -1; // *pResult = -1 表明没有找到
+//		if ((pFindInfo->lvfi.flags & LVFI_STRING) == 0)
+//			return;
+//		int nlen = _tcslen(pFindInfo->lvfi.psz);
+//		int startPos = pFindInfo->iStart;
+//		//Is startPos outside the list (happens if last item is selected)
+//		if (startPos >= log_list.GetItemCount())
+//			startPos = 0;
+//		int currentPos = startPos;
+//		do{
+//			if (memcmp((log_list + startPos), pFindInfo->lvfi.psz, nlen) == 0)
+//			{
+//				*pResult = currentPos;
+//				break;
+//			}
+//			currentPos++;
+//
+//			if (currentPos >= log_list.GetItemCount())
+//				currentPos = 0;
+//		} while (currentPos != startPos);
+//}
 
 
 void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
@@ -311,15 +317,13 @@ void CVListDlg::OnGetdispinfoLSTAnalyse(NMHDR* pNMHDR, LRESULT* pResult)
 		int iItemIndx= pItem->iItem;
 		CString strRows = "";
 		m_EDT_Rows.GetWindowText(strRows);
-		//if (iItemIndx + 1 >= atoi(strRows) && iItemIndx % atoi(strRows) == atoi(strRows) - 1)
-		//log_list.EnsureVisible(iItemIndx,FALSE);
 		if (pItem->mask & LVIF_TEXT) //字符串缓冲区有效
 		{
 				switch(pItem->iSubItem)
 				{
 				case 0:
 				{
-					//strTmp.Format("%d", m_aryLstLog[iItemIndx].id);
+				    //strTmp.Format("%d", m_aryLstLog[iItemIndx].id);
 					strTmp.Format("%d", arr[iItemIndx].id);
 					lstrcpy(pItem->pszText, strTmp);
 					strTmp = "";
