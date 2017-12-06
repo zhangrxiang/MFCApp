@@ -37,5 +37,6 @@ public:
     Student student[200];
 	afx_msg void OnNMRclkListStu(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnMenuDel();
+	BOOL GetVerInfo();
 //	afx_msg void OnLvnEndScrollListStu(NMHDR *pNMHDR, LRESULT *pResult);
 };

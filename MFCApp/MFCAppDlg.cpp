@@ -140,7 +140,40 @@ BOOL CMFCAppDlg::OnInitDialog()
 	m_list_stu.SetBkColor(RGB(200, 200, 255));
 	//设置第一行为选中状态  
 	m_list_stu.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-
+#pragma   comment(lib, "Version.lib ")
+	GetVerInfo();
+	//CString modFilename;
+	//if (GetModuleFileName(AfxGetInstanceHandle(), modFilename.GetBuffer(MAX_PATH), MAX_PATH) > 0)
+	//{
+	//	modFilename.ReleaseBuffer(MAX_PATH);
+	//	DWORD dwHandle = 0;
+	//	DWORD dwSize = GetFileVersionInfoSize(modFilename.GetBuffer(MAX_PATH), &dwHandle);
+	//	if (dwSize > 0)
+	//	{
+	//		LPBYTE lpInfo = new BYTE[dwSize];
+	//		ZeroMemory(lpInfo, dwSize);
+	//		if (GetFileVersionInfo(modFilename.GetBuffer(MAX_PATH), 0, dwSize, lpInfo))
+	//		{
+	//			//// This will extract so called FIXED portion of the version info   
+	//			UINT valLen = MAX_PATH;
+	//			LPVOID valPtr = NULL;
+	//			if (VerQueryValue(lpInfo, TEXT("\\"), &valPtr, &valLen))
+	//			{
+	//				VS_FIXEDFILEINFO* pFinfo = (VS_FIXEDFILEINFO*)valPtr;
+	//				// convert to text   
+	//				CString valStr;
+	//				valStr.Format(_T("%d.%d.%d.%d"),
+	//					(pFinfo->dwFileVersionMS >> 16) & 0xFF,
+	//					(pFinfo->dwFileVersionMS) & 0xFF,
+	//					(pFinfo->dwFileVersionLS >> 16) & 0xFF,
+	//					(pFinfo->dwFileVersionLS) & 0xFF
+	//				);
+	//				AfxMessageBox(valStr);
+	//			}
+	//		}
+	//		delete[] lpInfo;
+	//	}
+	//}
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -248,4 +281,100 @@ void CMFCAppDlg::OnMenuDel()
 	}
 }
 
+BOOL CMFCAppDlg::GetVerInfo()
+{
+	//取得版本信息
+#pragma   comment(lib, "Version.lib ")
 
+	char FileVerInfo[4096];
+	char string[200];
+	DWORD dwVerLen = 0;
+	CString szExeName;
+	GetModuleFileName(NULL, szExeName.GetBufferSetLength(MAX_PATH + 1), MAX_PATH);
+	szExeName.ReleaseBuffer();
+	int m_len = GetFileVersionInfoSize(szExeName, &dwVerLen);
+	if (!m_len)//找指定文件的版本信息这里是"Server.exe"，也可以是应用程序自己的名字
+	{
+		MessageBox(NULL, "无法找到指定文件", MB_OK | MB_ICONSTOP);
+		return FALSE;
+	}
+	BOOL m_bFile = GetFileVersionInfo(szExeName, NULL, m_len, FileVerInfo);
+	// Read the list of languages and code pages.
+	//	LPTSTR lpSubBlock;   // value to retrieve
+	//	LPVOID *lplpBuffer;  // buffer for version value pointer
+	//	PUINT puLen ;  // version length
+	UINT cbTranslate;
+	char SubBlock[4096];
+	UINT dwBytes;
+	struct LANGANDCODEPAGE {
+		WORD wLanguage;
+		WORD wCodePage;
+	} *lpTranslate;
+	struct version {
+		char * strProductName;
+		char * strProductVersion;
+		char * strLegalCopyright;
+		char * strCompanyName;
+		char * strSpecialBuild;
+	} ver;
+	VerQueryValue(FileVerInfo,
+		TEXT("\\VarFileInfo\\Translation"),
+		(LPVOID*)&lpTranslate,
+		&cbTranslate);
+	// Read the file description for each language and code page.
+	for (int i = 0; i < (cbTranslate / sizeof(struct LANGANDCODEPAGE)); i++)
+	{
+		wsprintf(SubBlock,
+			TEXT("\\StringFileInfo\\%04x%04x\\ProductName"),
+			lpTranslate[i].wLanguage,
+			lpTranslate[i].wCodePage);
+		// Retrieve file description for language and code page "i". 
+		VerQueryValue(string,
+			SubBlock,
+			(void **)&ver.strProductName,
+			&dwBytes);
+
+		wsprintf(SubBlock,
+			TEXT("\\StringFileInfo\\%04x%04x\\ProductVersion"),
+			lpTranslate[i].wLanguage,
+			lpTranslate[i].wCodePage);
+
+		// Retrieve file description for language and code page "i". 
+		VerQueryValue(FileVerInfo,
+			SubBlock,
+			(void **)&ver.strProductVersion,
+			&dwBytes);
+		wsprintf(SubBlock,
+			TEXT("\\StringFileInfo\\%04x%04x\\LegalCopyright"),
+			lpTranslate[i].wLanguage,
+			lpTranslate[i].wCodePage);
+
+		// Retrieve file description for language and code page "i". 
+		VerQueryValue(FileVerInfo,
+			SubBlock,
+			(void **)&ver.strLegalCopyright,
+			&dwBytes);
+		wsprintf(SubBlock,
+			TEXT("\\StringFileInfo\\%04x%04x\\CompanyName"),
+			lpTranslate[i].wLanguage,
+			lpTranslate[i].wCodePage);
+
+		// Retrieve file description for language and code page "i". 
+		VerQueryValue(FileVerInfo,
+			SubBlock,
+			(void **)&ver.strCompanyName,
+			&dwBytes);
+		wsprintf(SubBlock,
+			TEXT("\\StringFileInfo\\%04x%04x\\SpecialBuild"),
+			lpTranslate[i].wLanguage,
+			lpTranslate[i].wCodePage);
+
+		// Retrieve file description for language and code page "i". 
+		VerQueryValue(FileVerInfo,
+			SubBlock,
+			(void **)&ver.strSpecialBuild,
+			&dwBytes);
+	}
+	AfxMessageBox(ver.strCompanyName);
+	return TRUE;
+}
